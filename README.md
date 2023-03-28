@@ -11,3 +11,5 @@ If you find errors/bugs in the modification functionality, you can use the "issu
 If you find a bug caused by incorrect LUA script playback, or it's "unexplained" crashes - don't be afraid to report it, but please note, you will do better if you test the addon on the original.
 
 Additionally, I copy the link to the archive for this project: https://drive.google.com/drive/folders/1m6ePEjyl-5qVZ2O009ZsKzrsQF7tZ67z?usp=share_link
+
+The original scripts belong to their authors, I (Ekidona Arubino) only supplemented/modified/reworked them.
