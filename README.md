@@ -1,5 +1,4 @@
-# ekidona-magazines-da098b
-Script part of the addon "Ekidona magazines"
+# Ekidona magazines for Dead Air 0.98b (scripts only)
 The complete version of the addon (with configurations and other content) can be found on the original ModDB page: https://www.moddb.com/mods/dead-air/addons/ekidona-magazines
 
 If you find errors/bugs in the modification functionality, you can use the "issues" tab, but with a number of conditions:
