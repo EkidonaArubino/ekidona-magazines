@@ -1,7 +1,15 @@
 function AddToMotivator(npc)
 	npc:bind_object(this.motivator_binder(npc))
 end
-NPCPrecSpawn={}
+--NPCPrecSpawn={}
+function GetNPCPrecSpawn(id) local mdata=alife_storage_manager.get_state()
+	if not(mdata)then return(nil)end if not(mdata.NPCPrecSpawn)then mdata.NPCPrecSpawn={}end
+	if(mdata and mdata.NPCPrecSpawn)then return(mdata.NPCPrecSpawn[id])end
+end
+function SetNPCPrecSpawn(id,var) local mdata=alife_storage_manager.get_state()
+	if not(mdata)then return end if not(mdata.NPCPrecSpawn)then mdata.NPCPrecSpawn={}end
+	if(mdata and mdata.NPCPrecSpawn)then mdata.NPCPrecSpawn[id]=var end
+end
 -- CScriptGameObject Binder for CAIStalker
 class "motivator_binder" (object_binder)
 function motivator_binder:__init (obj) super(obj)
@@ -425,7 +433,7 @@ function motivator_binder:update(delta)
 
 	local object = self.object
 	local id = object:id()
-	if not(NPCPrecSpawn[id])then CreateMagsToSomebody(object) NPCPrecSpawn[id]=true end
+	if not(GetNPCPrecSpawn(id))then CreateMagsToSomebody(object) SetNPCPrecSpawn(id,true)end
 	--alun_utils.debug_nearest(object,"motivator_binder:update(%s)",delta)
 	
 	xr_sound.update(id)
@@ -637,7 +645,7 @@ function motivator_binder:setup_known_info(npc,char_ini,known_info)
 		end
 	end
 end
-function CreateMagsToSomebody(who) local mkoeff=(math.max(1,who:rank())/(character_community(who)=="zombied" and 3 or 1)/2000)
+function CreateMagsToSomebody(who) local mkoeff=(math.max(1,who:rank())/(character_community(who)=="zombied" and 3 or 1)/3000)
 	local mcnt=math.random(utils.round(mkoeff/2),utils.round(mkoeff)) if(mcnt<=0)then return end local wpns={}
 	local function GetWeapons(temp,item)if(ekidona_mags.isMWeapon(item:section()))then table.insert(wpns,item)end end who:iterate_inventory(GetWeapons)
 	for i=1,#wpns do if(mcnt==0)then break end local cnt=math.random((i==#wpns and mcnt)or 0,mcnt) mcnt=(mcnt-cnt) local sec=wpns[i]:section() local ammos

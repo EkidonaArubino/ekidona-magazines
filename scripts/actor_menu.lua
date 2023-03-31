@@ -159,7 +159,7 @@ function on_item_focus(itm) FocusedItem=itm:id() TimeFocused=time_global() end
 function actor_on_update() local function SetMenuText(str) ItemsText:SetText(str)end
 	local fobj=level.object_by_id(FocusedItem)
 	if(actor_menu.inventory_opened() and fobj)then
-		local st,sec=ekidona_mags.WaMArray[fobj:id()],fobj:section()
+		local st,sec=ekidona_mags.GetMagazinesDB(fobj:id()),fobj:section()
 		if(IsWeapon(fobj))and(system_ini():r_string_ex(sec,"class")~="WP_KNIFE" and system_ini():r_string_ex(sec,"class")~="WP_BINOC")then
 			if(ekidona_mags.isMWeapon(sec))then
 				if not(st)then SetMenuText(game.translate_string("st_weapon_without_magazine")) return
@@ -179,7 +179,12 @@ function actor_on_update() local function SetMenuText(str) ItemsText:SetText(str
 	end SetMenuText("")
 end
 function on_item_focus_lost() if(TimeFocused~=time_global())then FocusedItem=nil end end
-function on_key_press(key) if not(actor_menu.inventory_opened() and key==DIK_keys.DIK_R)or(ekidona_mags.ReturnBoolUIMenuActive())then return end local obj=level.object_by_id(FocusedItem)
-	if(obj and utils.is_ammo(obj:section()) and obj:ammo_get_count()>1)then ekidona_mags.ammo_sort_ui(obj):ShowDialog(true)end
-end
+function on_key_press(key) if not(actor_menu.inventory_opened() and dik_to_bind(key)==key_bindings.kWPN_RELOAD)or(ekidona_mags.ReturnBoolUIMenuActive())then return end local obj=level.object_by_id(FocusedItem)
+	if(obj)then local osec,parentid=obj:section(),obj:parent():id()
+		if(utils.is_ammo(osec) and obj:ammo_get_count()>1)then ekidona_mags.ammo_sort_ui(obj):ShowDialog(true)
+		elseif(parentid==0)then
+			if(ekidona_mags.isMWeapon(osec))then ekidona_mags.WeaponEjectMag(obj)
+			elseif(ekidona_mags.isMagazine(osec))then ekidona_mags.MagEjectAmmo(obj)
+			elseif(ekidona_mags.isMSuit(osec) and #ekidona_mags.GetMagazinesDB(FocusedItem)>0)then ekidona_mags.mag_trans_wpn_ui(obj,nil,true):ShowDialog(true)end
+end end end
 function actor_on_net_destroy() ItemsText:Show(false) TimeFocused=0 end

@@ -33,10 +33,10 @@ function lend_item_for_repair(itm,mechanic_name,rt)
 	local npc = get_story_object(mechanic_name)
 	if (npc) then
 		if(ekidona_mags.isMWeapon(itm:section()))then ekidona_mags.WeaponEjectMag(itm)
-		elseif(ekidona_mags.isMSuit(itm:section()))then local data=ekidona_mags.WaMArray[itm:id()]
+		elseif(ekidona_mags.isMSuit(itm:section()))then local data=ekidona_mags.GetMagazinesDB(itm:id())
 			for k,v in pairs(data)do local msec=ekidona_mags.GetMagFromInd(v[1]) 
 				ekidona_mags.CreateMagazine(msec,db.actor:position(),db.actor:level_vertex_id(),db.actor:game_vertex_id(),0,ekidona_mags.GetAmmoSecFromMag(msec,v[2]),v[3])
-		end ekidona_mags.WaMArray[itm:id()]={} end db.actor:transfer_item(itm,npc) give_info(npc:section().."_is_repairing")
+		end ekidona_mags.SetMagazinesDB(itm:id(),{})end db.actor:transfer_item(itm,npc) give_info(npc:section().."_is_repairing")
 		news_manager.relocate_item(db.actor,"out",itm:section(),1)
 
 		local max_time = 0
@@ -503,7 +503,6 @@ function effect_repair_item( item_name, item_condition)
 		if (victim) then
 			local condition = item:condition()
 			local repair_time = (1-condition)*9000+30
-			
 			lend_item_for_repair(item,victim:section(),repair_time)
 		end
 	end

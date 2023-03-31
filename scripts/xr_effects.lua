@@ -6145,6 +6145,7 @@ function bar_arena_actor_dead(actor, npc)
 end
 
 --NEW ARENA
+--[[script by Ekidona Arubino | 31.03.23 | 16:29 (JST)]]
 local ArenaItemsSpawn={--Add outfit in the end.
 	[1]={"wpn_pm","wpn_knife","novice_outfit"},
 	[2]={"wpn_mp5","wpn_knife","novice_outfit",},
@@ -6168,8 +6169,8 @@ function bar_arena_teleport(actor,npc) actor_effects.disable_effects_timer(100) 
 					local ammoindex=ekidona_mags.GetAmmoIndFromMag(magsec,ammo:sub(1,string.len(ammo)-1))
 					for i=1,4 do table.insert(smags,{ekidona_mags.GetIndFromMag(magsec),ammoindex,system_ini():r_float_ex(v2,"ammo_mag_size")})end
 				elseif(ekidona_mags.isMSuit(v2))then 
-					local slen=ekidona_mags.GetSuitMaxMags(v2) ekidona_mags.WaMArray[itm.id]={}
-					for k3,v3 in pairs(smags)do if(k3<=slen)then table.insert(ekidona_mags.WaMArray[itm.id],v3)
+					local slen=ekidona_mags.GetSuitMaxMags(v2) ekidona_mags.SetMagazinesDB(itm.id,{})
+					for k3,v3 in pairs(smags)do if(k3<=slen)then table.insert(ekidona_mags.GetMagazinesDB(itm.id),v3)
 					else local magsec=ekidona_mags.GetMagFromInd(v3[1]) local mammo=ekidona_mags.GetAmmoSecFromMag(magsec,v3[2])
 					ekidona_mags.CreateMagazine(magsec,db.actor:position(),db.actor:level_vertex_id(),db.actor:game_vertex_id(),0,mammo,v3[3])
 					end end

@@ -1,4 +1,4 @@
---[[ Original code by Darryl123 /|\ Reworked by Ekidona Arubino (31.01.23)--]]
+--[[ Original code by Darryl123 /|\ Reworked by Ekidona Arubino (31.03.23)--]]
 local addons_table=alun_utils.collect_sections(system_ini(),{"addons_table"})
 function ReturnAddons() return(addons_table)end local precached_weapon_scopes,precached_scopes={},{}
 local function on_game_load() if(is_empty(precached_scopes))then for k,v in pairs(addons_table)do precached_scopes[k]={}end end
@@ -34,11 +34,11 @@ function attach_addon(addon,weapon) local asec,wsec=addon:section(),weapon:secti
 	if not(system_ini():section_exist(child_section))then printf("!ERROR! addoned weapon doesn't exitst: %s",child_section) return end
 	local old_weapon=alife_object(weapon:id()) if(old_weapon)then local wslot=GetWeaponSlot(weapon:id())
 		local new_weapon=alife():clone_weapon(old_weapon,child_section,old_weapon.position,old_weapon.m_level_vertex_id,old_weapon.m_game_vertex_id,old_weapon.parent_id,false)
-		if(new_weapon)then local grenades=bind_weapon.WeaponGrenadeAmmoDB[old_weapon.id] local need need=ekidona_mags.WaMArray[old_weapon.id]
+		if(new_weapon)then local grenades=bind_weapon.GetWeaponGrenadeAmmoDB(old_weapon.id) local need need=ekidona_mags.GetMagazinesDB(old_weapon.id)
 			if(grenades and old_weapon:get_addon_flags():is(cse_alife_item_weapon.eWeaponAddonGrenadeLauncher))then
 				create_ammo(system_ini():r_string_ex(wsec,"grenade_class"),db.actor:position(),db.actor:level_vertex_id(),db.actor:game_vertex_id(),0,1)
 			end local addon_object=alife_object(addon:id()) alife():release(addon_object,true) alife():release(old_weapon,true)
-			alife():register(new_weapon) bind_weapon.WeaponGrenadeAmmoDB[new_weapon.id]=false ekidona_mags.WaMArray[new_weapon.id]=need
+			alife():register(new_weapon) bind_weapon.SetWeaponGrenadeAmmoDB(new_weapon.id,false) ekidona_mags.SetMagazinesDB(new_weapon.id,need)
 			if(wslot)then TransWPNToSlot(new_weapon.id,wslot)end
 		end
 	end
@@ -48,11 +48,11 @@ function detach_addon(weapon) if not(weapon and IsWeapon(weapon) and not(ekidona
 	addonsec=wsec:sub(string.len(parent_section)+2,-1) if not(system_ini():section_exist(addonsec))then printf("!ERROR! addon section doesn't exitst: %s",addonsec) return end
 	local old_weapon=alife_object(weapon:id()) if(old_weapon)then give_object_to_actor(addonsec) local wslot=GetWeaponSlot(weapon:id())
 		local new_weapon=alife():clone_weapon(old_weapon,parent_section,old_weapon.position,old_weapon.m_level_vertex_id,old_weapon.m_game_vertex_id,old_weapon.parent_id,false)
-		if(new_weapon)then local grenades=bind_weapon.WeaponGrenadeAmmoDB[old_weapon.id] local need need=ekidona_mags.WaMArray[old_weapon.id]
+		if(new_weapon)then local grenades=bind_weapon.GetWeaponGrenadeAmmoDB(old_weapon.id) local need need=ekidona_mags.GetMagazinesDB(old_weapon.id)
 			if(grenades and old_weapon:get_addon_flags():is(cse_alife_item_weapon.eWeaponAddonGrenadeLauncher))then
 				create_ammo(system_ini():r_string_ex(wsec,"grenade_class"),db.actor:position(),db.actor:level_vertex_id(),db.actor:game_vertex_id(),0,1)
-			end alife():release(old_weapon,true) alife():register(new_weapon) bind_weapon.WeaponGrenadeAmmoDB[new_weapon.id]=false
-			ekidona_mags.WaMArray[new_weapon.id]=need if(wslot)then TransWPNToSlot(new_weapon.id,wslot)end
+			end alife():release(old_weapon,true) alife():register(new_weapon) bind_weapon.SetWeaponGrenadeAmmoDB(new_weapon.id,false)
+			ekidona_mags.SetMagazinesDB(new_weapon.id,need) if(wslot)then TransWPNToSlot(new_weapon.id,wslot)end
 	end end
 end
 function context_functor(weapon) if not(weapon:parent() and weapon:parent():id()==0)then return end

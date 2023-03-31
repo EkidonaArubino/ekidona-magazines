@@ -1672,12 +1672,11 @@ end
 function CSE_ALifeDynamicObject_on_unregister(id) local m_data=alife_storage_manager.get_state()
 	if(m_data)then if(m_data.companion_borrow_item)then m_data.companion_borrow_item[id]=nil end
 		if(m_data.NPCPrecSpawn)then m_data.NPCPrecSpawn[id]=nil end
-		if(m_data.WaMArray)then m_data.WaMArray[id]=nil end
-		if(m_data.flag_weapon_jammed)then m_data.flag_weapon_jammed[id]=nil end
+		if(m_data.MagazinesDB)then m_data.MagazinesDB[id]=nil end
+		if(m_data.JammedDB)then m_data.JammedDB[id]=nil end
 		if(m_data.WeaponGrenadeAmmoDB)then m_data.WeaponGrenadeAmmoDB[id]=nil end
 		if(m_data.WeaponMainAmmoDB)then m_data.WeaponMainAmmoDB[id]=nil end
-	end xr_motivator.NPCPrecSpawn[id]=nil ekidona_mags.WaMArray[id]=nil
-	ekidona_mags.flag_weapon_jammed[id]=nil bind_weapon.WeaponGrenadeAmmoDB[id]=nil bind_weapon.WeaponMainAmmoDB[id]=nil
+	end
 end
 
 get_console():execute("r__clear_models_on_unload 0")

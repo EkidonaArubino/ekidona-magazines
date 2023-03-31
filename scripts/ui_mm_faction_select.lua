@@ -45,7 +45,7 @@ local function create_loadout(number)
 		alife():create("wpn_knife3",db.actor:position(),db.actor:level_vertex_id(),db.actor:game_vertex_id(),0)
 		local wpn=alife():create("wpn_ak74u",db.actor:position(),db.actor:level_vertex_id(),db.actor:game_vertex_id(),0)
 		for i=1,4 do create_mags("wpn_ak74u",db.actor:position(),db.actor:level_vertex_id(),db.actor:game_vertex_id())end
-		ekidona_mags.WaMArray[wpn.id]=ekidona_mags.GetMagName("wpn_ak74u",2,1,system_ini():r_float_ex("wpn_ak74u","ammo_elapsed"),alun_utils.parse_list(system_ini(),"wpn_ak74u","ammo_class")[1]:sub(1,-2))[1]
+		ekidona_mags.SetMagazinesDB(wpn.id,ekidona_mags.GetMagName("wpn_ak74u",2,1,system_ini():r_float_ex("wpn_ak74u","ammo_elapsed"),alun_utils.parse_list(system_ini(),"wpn_ak74u","ammo_class")[1]:sub(1,-2))[1])
 		--[[alife():create("ammo_5.45x39_ap",db.actor:position(),db.actor:level_vertex_id(),db.actor:game_vertex_id(),0)
 		alife():create("ammo_5.45x39_ap",db.actor:position(),db.actor:level_vertex_id(),db.actor:game_vertex_id(),0)]]
 		alife():create("grenade_f1",db.actor:position(),db.actor:level_vertex_id(),db.actor:game_vertex_id(),0)

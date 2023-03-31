@@ -24,8 +24,7 @@ function artefact_binder:net_spawn(server_object)
 		artefact:FollowByPath(bind_anomaly_zone.artefact_ways_by_id[id],bind_anomaly_zone.artefact_points_by_id[id],vector():set(force_xz,force_y,force_xz))
 --		artefact:FollowByPath(bind_anomaly_zone.artefact_ways_by_id[id],0,vector():set(force_xz,force_y,force_xz))
 	end local mdata,section=alife_storage_manager.get_state(),self.object:section()
-	ekidona_mags.WaMArray[id]=(ekidona_mags.WaMArray[id] or(mdata and mdata.WaMArray and mdata.WaMArray[id]))
-	if(ekidona_mags.WaMArray[id]==nil)and(ekidona_mags.isMSuit(section))then ekidona_mags.WaMArray[id]={}end
+	if(ekidona_mags.GetMagazinesDB(id)==nil)and(ekidona_mags.isMSuit(section))then ekidona_mags.SetMagazinesDB(id,{})end
 	self.first_call = true
 		
 	return true
@@ -93,15 +92,15 @@ function artefact_binder:update(delta)
 		
 		self.first_call = false
     elseif(ekidona_mags.isMSuit(self.object:section()))then local id,obj=self.object:id(),self.object
-		if not(ekidona_mags.WaMArray[id])then return end local udata,tremove,addsize=ekidona_mags.GetMagazinesOnUnload(obj),{},0
+		if not(ekidona_mags.GetMagazinesDB(id))then return end local udata,tremove,addsize=ekidona_mags.GetMagazinesOnUnload(obj),{},0
 		local amass=(system_ini():r_float_ex(obj:section(),"inv_weight")*math.min(1,obj:condition()/0.75))
-		for k,v in pairs(ekidona_mags.WaMArray[id])do local magsec=ekidona_mags.GetMagFromInd(v[1])
+		for k,v in pairs(ekidona_mags.GetMagazinesDB(id))do local magsec=ekidona_mags.GetMagFromInd(v[1])
 			local ammosec=ekidona_mags.GetAmmoSecFromMag(magsec,v[2]) addsize=(addsize+ekidona_mags.GetMagSize(magsec))
 			if(addsize>udata[2])then table.insert(tremove,k) local parent=obj:parent()
 				if(parent)then ekidona_mags.CreateMagazine(magsec,obj:position(),obj:level_vertex_id(),obj:game_vertex_id(),parent:id(),ammosec,v[3])
 				else ekidona_mags.CreateMagazine(magsec,obj:position(),obj:level_vertex_id(),obj:game_vertex_id(),nil,ammosec,v[3])end--meh
 			else amass=(amass+system_ini():r_float_ex(magsec,"inv_weight")+((system_ini():r_float_ex(ammosec,"inv_weight")/system_ini():r_float_ex(ammosec,"box_size"))*v[3]))
-		end end for i=1,#tremove do table.remove(ekidona_mags.WaMArray[id],tremove[i]-(i-1))end obj:set_weight(amass)
+		end end for i=1,#tremove do table.remove(ekidona_mags.GetMagazinesDB(id),tremove[i]-(i-1))end obj:set_weight(amass)
 	end	
 end
 
