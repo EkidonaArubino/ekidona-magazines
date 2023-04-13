@@ -184,7 +184,7 @@ function on_key_press(key) if not(actor_menu.inventory_opened() and dik_to_bind(
 		if(utils.is_ammo(osec) and obj:ammo_get_count()>1)then ekidona_mags.ammo_sort_ui(obj):ShowDialog(true)
 		elseif(parentid==0)then
 			if(ekidona_mags.isMWeapon(osec))then ekidona_mags.WeaponEjectMag(obj)
-			elseif(ekidona_mags.isMagazine(osec))then ekidona_mags.MagEjectAmmo(obj)
+			elseif(ekidona_mags.isMagazine(osec) and ekidona_mags.GetMagazinesDB(FocusedItem)[2]>0)then ekidona_mags.MagEjectAmmo(obj)
 			elseif(ekidona_mags.isMSuit(osec) and #ekidona_mags.GetMagazinesDB(FocusedItem)>0)then ekidona_mags.mag_trans_wpn_ui(obj,nil,true):ShowDialog(true)end
 end end end
 function actor_on_net_destroy() ItemsText:Show(false) TimeFocused=0 end
