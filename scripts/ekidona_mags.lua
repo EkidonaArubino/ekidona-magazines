@@ -1,5 +1,5 @@
 --[[--All by エキドナ　アルビノ (Ekidona Arubino)--]]--
---31.03.23 : 16:10 (JST)
+--14.04.23 : 00:07 (JST)
 --WaMArray,flag_weapon_jammed={},{} [meh]
 local UIMenuActive,precahced_wmdata,precahced_magstowpn,precached_nonmagst=false,{},{},{}
 function ReturnBoolUIMenuActive() return(UIMenuActive)end
@@ -300,7 +300,7 @@ end function ammo_sort_ui:OnKeyboard(dik,keyboard_action) CUIScriptWnd.OnKeyboar
 	end return(true)
 end
 function ammo_sort_ui:actor_on_update() if(self)then
-	if(self.health and self.health-db.actor.health>=0.1)then self:ExitMenu() else self.health=db.actor.health end
+	if(self.health and self.health-db.actor.health>=0.02)then self:ExitMenu() else self.health=db.actor.health end
 end end
 function ammo_sort_ui:actor_on_before_death() if(self)then self:ExitMenu()end end
 function ammo_sort_ui:ExitMenu() UIMenuActive=false UnregisterScriptCallback("actor_on_before_death",self) UnregisterScriptCallback("actor_on_update",self) self:HideDialog()end
@@ -344,7 +344,7 @@ function ammo_trans_mag_ui:OnButton_in()
 	self.itmcap[1]:SetText(smag[2])self.itmcap[2]:SetText(self.ammo:ammo_get_count())
 end
 function ammo_trans_mag_ui:actor_on_update() if(self)then
-	if(self.health and self.health-db.actor.health>=0.1)then self:CloseMenu() else self.health=db.actor.health end
+	if(self.health and self.health-db.actor.health>=0.02)then self:CloseMenu() else self.health=db.actor.health end
 end end
 function ammo_trans_mag_ui:actor_on_before_death() if(self)then self:CloseMenu()end end
 function ammo_trans_mag_ui:CloseMenu()
@@ -447,5 +447,5 @@ function mag_trans_wpn_ui:OnButton_switch() mag_trans_wpn_ui(self.switchobj,self
 function mag_trans_wpn_ui:ExitMenu() UIMenuActive=false UnregisterScriptCallback("actor_on_before_death",self) UnregisterScriptCallback("actor_on_update",self) self:HideDialog()end
 function mag_trans_wpn_ui:actor_on_before_death() if(self)then self:ExitMenu()end end
 function mag_trans_wpn_ui:actor_on_update() if(self)then
-	if(self.health and self.health-db.actor.health>=0.1)then self:ExitMenu() else self.health=db.actor.health end
+	if(self.health and self.health-db.actor.health>=0.02)then self:ExitMenu() else self.health=db.actor.health end
 end end
