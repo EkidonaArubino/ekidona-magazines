@@ -95,11 +95,11 @@ function artefact_binder:update(delta)
 		if not(ekidona_mags.GetMagazinesDB(id))then return end local udata,tremove,addsize=ekidona_mags.GetMagazinesOnUnload(obj),{},0
 		local amass=(system_ini():r_float_ex(obj:section(),"inv_weight")*math.min(1,obj:condition()/0.75))
 		for k,v in pairs(ekidona_mags.GetMagazinesDB(id))do local magsec=ekidona_mags.GetMagFromInd(v[1])
-			local ammosec=ekidona_mags.GetAmmoSecFromMag(magsec,v[2]) addsize=(addsize+ekidona_mags.GetMagSize(magsec))
+			local ammosec=(v[2] and ekidona_mags.GetAmmoSecFromMag(magsec,v[2])) addsize=(addsize+ekidona_mags.GetMagSize(magsec))
 			if(addsize>udata[2])then table.insert(tremove,k) local parent=obj:parent()
 				if(parent)then ekidona_mags.CreateMagazine(magsec,obj:position(),obj:level_vertex_id(),obj:game_vertex_id(),parent:id(),ammosec,v[3])
 				else ekidona_mags.CreateMagazine(magsec,obj:position(),obj:level_vertex_id(),obj:game_vertex_id(),nil,ammosec,v[3])end--meh
-			else amass=(amass+system_ini():r_float_ex(magsec,"inv_weight")+((system_ini():r_float_ex(ammosec,"inv_weight")/system_ini():r_float_ex(ammosec,"box_size"))*v[3]))
+			else amass=(amass+system_ini():r_float_ex(magsec,"inv_weight")+((ammosec and((system_ini():r_float_ex(ammosec,"inv_weight")/system_ini():r_float_ex(ammosec,"box_size"))*v[3]))or 0))
 		end end for i=1,#tremove do table.remove(ekidona_mags.GetMagazinesDB(id),tremove[i]-(i-1))end obj:set_weight(amass)
 	end	
 end

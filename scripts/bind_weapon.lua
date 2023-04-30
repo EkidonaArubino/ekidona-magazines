@@ -1,5 +1,5 @@
 --[[--All by エキドナ　アルビノ (Ekidona Arubino)--]]--
---31.03.23 : 16:10(JST)
+--01.05.23 : 01:20(JST)
 --WeaponGrenadeAmmoDB,WeaponMainAmmoDB={},{}
 function GetWeaponGrenadeAmmoDB(id) local mdata=alife_storage_manager.get_state()
 	if not(mdata)then return(nil)end if not(mdata.WeaponGrenadeAmmoDB)then mdata.WeaponGrenadeAmmoDB={}end
@@ -52,11 +52,11 @@ function weapon_binder:update(delta)
 	elseif(ekidona_mags.isMSuit(sec))then if not(st)then return end local udata,tremove,addsize=ekidona_mags.GetMagazinesOnUnload(obj),{},0
 		local amass=(system_ini():r_float_ex(sec,"inv_weight")*math.min(1,obj:condition()/0.75))
 		for k,v in pairs(ekidona_mags.GetMagazinesDB(obj:id()))do local magsec=ekidona_mags.GetMagFromInd(v[1])
-			local ammosec=ekidona_mags.GetAmmoSecFromMag(magsec,v[2]) addsize=(addsize+ekidona_mags.GetMagSize(magsec))
+			local ammosec=(v[2] and ekidona_mags.GetAmmoSecFromMag(magsec,v[2])) addsize=(addsize+ekidona_mags.GetMagSize(magsec))
 			if(addsize>udata[2])then table.insert(tremove,k) local parent=obj:parent()
 				if(parent)then ekidona_mags.CreateMagazine(magsec,obj:position(),obj:level_vertex_id(),obj:game_vertex_id(),parent:id(),ammosec,v[3])
 				else ekidona_mags.CreateMagazine(magsec,obj:position(),obj:level_vertex_id(),obj:game_vertex_id(),nil,ammosec,v[3])end--meh
-			else amass=(amass+system_ini():r_float_ex(magsec,"inv_weight")+((system_ini():r_float_ex(ammosec,"inv_weight")/system_ini():r_float_ex(ammosec,"box_size"))*v[3]))
+			else amass=(amass+system_ini():r_float_ex(magsec,"inv_weight")+((ammosec and((system_ini():r_float_ex(ammosec,"inv_weight")/system_ini():r_float_ex(ammosec,"box_size"))*v[3]))or 0))
 		end end for i=1,#tremove do table.remove(ekidona_mags.GetMagazinesDB(obj:id()),tremove[i]-(i-1))end obj:set_weight(amass)
 	elseif(IsWeapon(obj))and not(IsKnife(obj))and(ekidona_mags.GetWeaponGrenadeLauncher(obj))then obj:set_weight(system_ini():r_float_ex(sec,"inv_weight")+GetAmmoMass())end
 end

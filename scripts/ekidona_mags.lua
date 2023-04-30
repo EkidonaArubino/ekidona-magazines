@@ -1,5 +1,5 @@
 --[[--All by エキドナ　アルビノ (Ekidona Arubino)--]]--
---14.04.23 : 00:07 (JST)
+--01.05.23 : 01:20 (JST)
 --WaMArray,flag_weapon_jammed={},{} [meh]
 local UIMenuActive,precahced_wmdata,precahced_magstowpn,precached_nonmagst=false,{},{},{}
 function ReturnBoolUIMenuActive() return(UIMenuActive)end
@@ -229,8 +229,8 @@ function drag_item(item,item2,from_slot,to_slot)
 		if(ammoind)and(st[1]==ammoind or st[1]==nil)then ammo_trans_mag_ui(item2,item):ShowDialog(true)end
 	elseif(isMagazine(item:section()))and(isMWeapon(item2:section())and not(GetWeaponGrenadeLauncher(item2)))then local loading_state=WeaponAttemptToLoadMagazine(item2,item) -- and(to_slot==1)
 		if(loading_state)then CreateTimeEvent("EkiMagsReload",item2:id(),0,PlayReloadAnimation,item2)end -- get_hud():HideActorMenu() -- 0.1
-	elseif(isMagazine(item:section()))and(isMSuit(item2:section()))then local st,pdata=GetMagazinesDB(item:id()),GetMagazinesOnUnload(item2)
-		if(pdata[1]+GetMagSize(item:section())>pdata[2])or not(st[1] and st[2]>0)then return end table.insert(GetMagazinesDB(item2:id()),{precahced_wmdata[item:section()][0],st[1],st[2]})
+	elseif(isMagazine(item:section()))and(isMSuit(item2:section()))then local st,pdata=GetMagazinesDB(item:id()),GetMagazinesOnUnload(item2) --[[or not(st[1] and st[2]>0)]]
+		if(pdata[1]+GetMagSize(item:section())>pdata[2])then return end table.insert(GetMagazinesDB(item2:id()),{precahced_wmdata[item:section()][0],st[1],st[2]})
 		alife():release(alife_object(item:id()),true) xr_sound.set_sound_play(0,"inv_stack")
 	end
 end
@@ -369,7 +369,8 @@ function set_mag_list_item:__init(msec,aind,count,sort) super() local xml=CScrip
 end function set_mag_list_item:Rename(msec,aind,count,sort) local _frect=GetTFrectFromSec(msec)
 	local _size={_frect[3]-_frect[1],_frect[4]-_frect[2]}  self.icon:SetTextureRect(Frect():set(unpack(_frect)))
 	self.icon:SetWndSize(vector2():set(_size[1],_size[2])) 	self.text:SetWndSize(vector2():set(((sort and sort>0 and 220)or 254)-_size[1],_size[2])) self.text:SetWndPos(vector2():set(_size[1],0))
-	self.text:SetText(string.format("%s : %s",count,alun_utils.get_inv_name(precahced_wmdata[msec][3][aind])))
+	if(aind)then self.text:SetText(string.format("%s : %s",count,alun_utils.get_inv_name(precahced_wmdata[msec][3][aind])))
+	else self.text:SetText("...")end
 	for k,v in pairs(self.sortcaps)do
 		if(sort and bit_and(k,sort)>0)then v:Show(true) v:SetWndPos(vector2():set(220,(_size[2]/2)+uisseter[k][1]))else v:Show(false)end
 	end self.button:SetWndSize(vector2():set(252,_size[2])) self:SetWndSize(vector2():set(254,_size[2]))
@@ -404,8 +405,8 @@ function mag_trans_wpn_ui:SortThatMag(ind,sort) local st=GetMagazinesDB(self.out
 	else for i=1,(ind-1)do nst[i]=st[i]end nst[ind],nst[ind+1]=st[ind+1],st[ind] for i=1,(#st-(ind+1))do nst[ind+i+1]=st[ind+i+1]end end
 	SetMagazinesDB(self.outfit:id(),nst) self:GenerateMagsUI() xr_sound.set_sound_play(0,"inv_stack")
 end
-function mag_trans_wpn_ui:AttachThatMag(ind) local st=(GetMagazinesDB(self.outfit:id())and GetMagazinesDB(self.outfit:id())[ind]) if not(st)then return(false)end
-	if not(self.onlyunload)then
+function mag_trans_wpn_ui:AttachThatMag(ind) local st=(GetMagazinesDB(self.outfit:id())and GetMagazinesDB(self.outfit:id())[ind])
+	if not(self.onlyunload)and(st and st[2] and st[3])then
 		if not(IsAppropriateMagazine(self.weapon:section(),precahced_wmdata[st[1]]) and self.weapon:get_state()~=7)then return(false)end
 		local ammotype=SelectAmmoType(self.weapon,precahced_wmdata[precahced_wmdata[st[1]]][3][st[2]]) if not(ammotype)then return(false)end
 		reloadtb={st[3],ind,ammotype,precahced_wmdata[st[1]],self.weapon:id(),{true,self.outfit:id()}} local pmag,ammohave=GetMagazinesDB(self.weapon:id()),self.weapon:get_ammo_in_magazine()
@@ -418,7 +419,7 @@ function mag_trans_wpn_ui:AttachThatMag(ind) local st=(GetMagazinesDB(self.outfi
 			end end if not(uused)then WeaponEjectMag(self.weapon)end
 		end xr_sound.set_sound_play(0,"inv_stack") -- get_hud():HideActorMenu() 
 		CreateTimeEvent("EkiMagsReload",self.weapon:id(),0,PlayReloadAnimation,self.weapon) self:ExitMenu() -- 0.1
-	else local msec=precahced_wmdata[st[1]] xr_sound.set_sound_play(0,"inv_stack")
+	elseif(st)then local msec=precahced_wmdata[st[1]] xr_sound.set_sound_play(0,"inv_stack")
 		CreateMagazine(msec,db.actor:position(),db.actor:level_vertex_id(),db.actor:game_vertex_id(),0,precahced_wmdata[msec][3][st[2]],st[3])
 		table.remove(GetMagazinesDB(self.outfit:id()),ind) self.list:RemoveWindow(self.mforms[ind]) table.remove(self.mforms,ind) self:GenerateMagsUI()
 	end
