@@ -223,7 +223,7 @@ function actor_on_before_hit(s_hit,bone_id)
 			local arte = level.object_by_id(art_id)
 			if not (arte and db.actor:is_on_belt(arte)) then
 				belted_arts[art_id] = nil
-			elseif(arte:section()=="unloading_bag")then
+			elseif(arte:section()=="unloading_bag")and(equipement_damaging[hit_to_section[s_hit.type]])then
 				table.insert(unloads,arte)
 			else local imm_sect = hit_to_section[s_hit.type]
 				cond_loss = get_artefact_adsorbation(arte,imm_sect)
