@@ -1,5 +1,5 @@
 --[[--All by エキドナ　アルビノ (Ekidona Arubino)--]]--
---31.03.23 : 16:16 (JST)
+--23.04.23 : 2:53 (JST)
 EkiAddHUDInfo=nil
 local function actor_on_first_update()
 	EkiAddHUDInfo=inv_add_info() get_hud():AddDialogToRender(EkiAddHUDInfo)
@@ -26,11 +26,14 @@ function inv_add_info:Update() CUIScriptWnd.Update(self)
 	local wpn,msec=db.actor:active_item() local sec=(wpn and wpn:section())
 	if(sec)and(IsWeapon(wpn))and not(IsKnife(wpn))then
 		if(ekidona_mags.GetWeaponGrenadeLauncher(wpn))then msec=alun_utils.str_explode(system_ini():r_string_ex(sec,"grenade_class"),",")[wpn:get_ammo_type()+1]
-		elseif(ekidona_mags.GetMagazinesDB(wpn:id()))then msec=ekidona_mags.GetMagFromInd(ekidona_mags.GetMagazinesDB(wpn:id()))
+		elseif(ekidona_mags.GetMagazinesDB(wpn:id()))then msec=ekidona_mags.GetMagFromInd(ekidona_mags.GetMagazinesDB(wpn:id())[1])
 		elseif(wpn:get_ammo_in_magazine()>0)then msec=alun_utils.str_explode(system_ini():r_string_ex(sec,"ammo_class"),",")[wpn:get_ammo_type()+1]end
 	end if(msec)then local fary=ekidona_mags.GetTFrectFromSec(msec) self.WPNFrame.mag:SetTextureRect(Frect():set(unpack(fary)))
 		local size={fary[3]-fary[1],fary[4]-fary[2]} self.WPNFrame.mag:SetWndSize(vector2():set(size[1],size[2]))
 		self.WPNFrame:SetWndPos(vector2():set(self.WPNPos[1]-(size[1]-50),self.WPNPos[2]-(size[2]-50)))
-		self.WPNFrame.ammo:SetWndPos(vector2():set(size[1]-50,size[2]-50)) self.WPNFrame.ammo:SetText(wpn:get_ammo_in_magazine())
+		self.WPNFrame.ammo:SetWndPos(vector2():set(size[1]-50,size[2]-50))
+		if(ekidona_mags.GetMagazinesDB(wpn:id()) and not(ekidona_mags.GetWeaponGrenadeLauncher(wpn)))then
+			self.WPNFrame.ammo:SetText(ekidona_mags.GetMagazineAmmoCount(ekidona_mags.GetMagazinesDB(wpn:id())[2]))
+		else self.WPNFrame.ammo:SetText(wpn:get_ammo_in_magazine())end
 	end self:UpdateWpnIcons(msec~=nil)
 end
