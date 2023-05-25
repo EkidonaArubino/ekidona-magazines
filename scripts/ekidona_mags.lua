@@ -128,7 +128,9 @@ function BackAllINeed(item,prnt) prnt=(prnt or item:parent() or db.actor)
 	end SetMagazinesDB(item:id(),{})end
 end
 -- Specialy for weapon mags
-function SetWeaponAmmoParams(wpn,ammotype,ammocnt) wpn:set_ammo_type(ammotype)wpn:set_ammo_elapsed(ammocnt)wpn:set_ammo_type(ammotype)end--Don't ask me why i'm duplicated set_ammo_type().
+function SetWeaponAmmoParams(wpn,ammotype,ammocnt) wpn:unload_magazine() -- meh
+	wpn:set_ammo_type(ammotype)wpn:set_ammo_elapsed(ammocnt)wpn:set_ammo_type(ammotype) --Don't ask me why i'm duplicated set_ammo_type().
+end
 local random_magazines={}
 function GetMagName(sec,rtype,rres,ammoneed,ammosec,rkoef) rtype,rres=(rtype or 1),(rres or 1)
 	if not(random_magazines[sec])then random_magazines[sec]={[1]={},[2]={}}
