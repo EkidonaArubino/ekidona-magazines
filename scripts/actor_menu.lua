@@ -57,7 +57,7 @@ function on_key_press(key) local bindkey=dik_to_bind(key)
 			elseif(ekidona_mags.isMagazine(osec))then ekidona_mags.ammo_trans_mag_ui(obj):ShowDialog(true)
 			elseif(ekidona_mags.isMSuit(osec) and #ekidona_mags.GetMagazinesDB(FocusedItem)>0)then ekidona_mags.mag_trans_wpn_ui(obj,nil,true):ShowDialog(true)
 		end end
-	elseif(indbool)and(ekidona_mags.isMagazine(osec))then
+	elseif(obj:parent():id()==0)and(ekidona_mags.isMagazine(osec))then
 		if(bindkey==key_bindings.kACCEL)then
 			for k,v in pairs({db.actor:item_in_slot(7),db.actor:item_in_slot(15)})do
 				if(v)and(ekidona_mags.GetMagazinesDB(v:id()))then local uvol=ekidona_mags.GetMagazinesOnUnload(v)
@@ -65,7 +65,7 @@ function on_key_press(key) local bindkey=dik_to_bind(key)
 						table.insert(ekidona_mags.GetMagazinesDB(v:id()),{ekidona_mags.GetIndFromMag(osec),ekidona_mags.GetMagazinesDB(FocusedItem)or {}})
 						alife():release(alife_object(FocusedItem)) xr_sound.set_sound_play(0,"inv_stack") return
 			end end end
-		elseif(bindkey==key_bindings.kCROUCH)and(indbool)and(ekidona_mags.isMagazine(osec))then
+		elseif(bindkey==key_bindings.kCROUCH)then
 			for k,v in pairs({2,3,5})do local wpn=db.actor:item_in_slot(v)
 				if(wpn and ekidona_mags.isMWeapon(wpn:section()))then
 					if(ekidona_mags.WeaponAttemptToLoadMagazine(wpn,obj))then
