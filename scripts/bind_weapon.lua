@@ -1,5 +1,5 @@
 --[[--All by エキドナ　アルビノ (Ekidona Arubino)--]]--
---23.05.23 : 16:02(JST)
+--25.05.23 : 20:54(JST)
 --WeaponGrenadeAmmoDB,WeaponMainAmmoDB={},{}
 function GetWeaponGrenadeAmmoDB(id) local mdata=alife_storage_manager.get_state()
 	if not(mdata)then return(nil)end if not(mdata.WeaponGrenadeAmmoDB)then mdata.WeaponGrenadeAmmoDB={}end
@@ -90,11 +90,11 @@ function weapon_binder:net_spawn(se_abstract)
 	if not(mdata.WeaponMainAmmoDB)then mdata.WeaponMainAmmoDB={}end mdata.WeaponMainAmmoDB[id]=(mdata.WeaponMainAmmoDB[id] or false)
 	if(ekidona_mags.GetMagazinesDB(id)==nil)then
 		if(ekidona_mags.isMagazine(section) or ekidona_mags.isMSuit(section))then ekidona_mags.SetMagazinesDB(id,{})
-		elseif(ekidona_mags.isMWeapon(section))then local ammo_have=self.object:get_ammo_in_magazine()
+		--[[elseif(ekidona_mags.isMWeapon(section))then local ammo_have=self.object:get_ammo_in_magazine()
 			if(ammo_have>0)or(math.random()>=0.75)then local ammosec=ekidona_mags.SelectAmmoTypeName(self.object,self.object:get_ammo_type())
 				local magind=ekidona_mags.GetMagName(section,1,1,ammo_have,ammosec)
 				if(magind==nil)then SetWeaponToMag(self.object) else ekidona_mags.SetMagazinesDB(id,{magind,{{ekidona_mags.GetAmmoIndFromMag(ekidona_mags.GetMagFromInd(magind),ammosec),ammo_have}}})end
-			else ekidona_mags.SetMagazinesDB(id,false)end
+			else ekidona_mags.SetMagazinesDB(id,false)end]]
 		end
 	end self.first_call=true return(true)
 end
@@ -107,7 +107,8 @@ function fammo_binder:__init(obj)super(obj)end
 function fammo_binder:net_spawn(se_abstract)if not(object_binder.net_spawn(self,se_abstract))then return false end return true end
 function fammo_binder:update(delta)
 	object_binder.update(self,delta) local obj=self.object local sec=obj:section()
-	if(obj:parent())then if(obj:parent():id()~=0 and IsStalker(obj:parent()) and obj:parent():alive())then return end
+	if(obj:parent())then local prnt=obj:parent()
+		if(prnt:id()~=0)and((actor_menu.inventory_opened())or(IsStalker(prnt) and prnt:alive()))then return end
 		create_ammo(sec:sub(1,string.len(sec)-1),obj:position(),obj:level_vertex_id(),obj:game_vertex_id(),obj:parent():id(),obj:ammo_get_count())
 	else create_ammo(sec:sub(1,string.len(sec)-1),obj:position(),obj:level_vertex_id(),obj:game_vertex_id(),nil,obj:ammo_get_count())end--meh
 	alife():release(alife_object(obj:id()))
