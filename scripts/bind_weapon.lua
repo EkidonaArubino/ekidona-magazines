@@ -1,5 +1,5 @@
 --[[--All by エキドナ　アルビノ (Ekidona Arubino)--]]--
---25.05.23 : 20:54(JST)
+--27.05.23 : 20:45(JST)
 --WeaponGrenadeAmmoDB,WeaponMainAmmoDB={},{}
 function GetWeaponGrenadeAmmoDB(id) local mdata=alife_storage_manager.get_state()
 	if not(mdata)then return(nil)end if not(mdata.WeaponGrenadeAmmoDB)then mdata.WeaponGrenadeAmmoDB={}end
@@ -26,7 +26,7 @@ function weapon_binder:update(delta)
     object_binder.update(self,delta)
 	local obj=self.object local sec,st=obj:section(),ekidona_mags.GetMagazinesDB(obj:id())
 	if(IsWeapon(obj))and not(IsKnife(obj) or IsGrenade(obj))then
-		SetWeaponGrenadeAmmoDB(obj:id(),(ekidona_mags.GetWeaponGrenadeLauncher(obj) and obj:get_ammo_in_magazine()>0)or GetWeaponGrenadeAmmoDB(obj:id()))
+		if(ekidona_mags.GetWeaponGrenadeLauncher(obj))then SetWeaponGrenadeAmmoDB(obj:id(),(obj:get_ammo_in_magazine()>0))end
 	end
 	if(self.first_call)then
 		if(ekidona_mags.isMagazine(sec)or ekidona_mags.isMSuit(sec))and(obj:parent())and(IsTrader(obj:parent()))then--IsTrader is not prepared for working
