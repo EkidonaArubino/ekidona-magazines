@@ -1,5 +1,5 @@
 --[[--All by エキドナ　アルビノ (Ekidona Arubino)--]]--
---24.05.23 : 19:43 (JST)
+--25.06.23 : 20:20 (JST)
 --WaMArray,flag_weapon_jammed={},{} [meh]
 local UIMenuActive,precahced_wmdata,precahced_magstowpn,precached_nonmagst=false,{},{},{}
 function ReturnBoolUIMenuActive() return(UIMenuActive)end
@@ -372,7 +372,7 @@ function ammo_trans_mag_ui:OnButton_out() if(self:ICheckTimeUpdate())then return
 end
 function ammo_trans_mag_ui:OnButton_in() if(self:ICheckTimeUpdate())then return end local st=GetMagazinesDB(self.mag:id())
 	if(GetMagazineAmmoCount(st)>=GetMagAmmoSize(self.mag:section(),st[1] and st[1][1]))
-	or(GetMagAmmoSizeInd(self.mag:section(),self.aind)~=GetMagAmmoSizeInd(self.mag:section(),st[1] and st[1][1]))then return end
+	or(st[1] and(GetMagAmmoSizeInd(self.mag:section(),self.aind)~=GetMagAmmoSizeInd(self.mag:section(),st[1][1])))then return end
 	if not(RemoveAmmoFromActor(GetAmmoSecFromMag(self.mag:section(),self.aind)))then return end self.updateme=true
 	if(st[1] and st[#st][1]==self.aind)then st[#st][2]=(st[#st][2]+1)else table.insert(st,{self.aind,1})end
 end
