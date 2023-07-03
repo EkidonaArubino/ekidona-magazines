@@ -1,5 +1,5 @@
---[[--All by エキドナ　アルビノ (Ekidona Arubino)--]]--
---27.05.23 : 20:45(JST)
+--[[--All by エキドナアルビノ (Ekidona Arubino)--]]--
+--03.07.23 : 13:26(JST)
 --WeaponGrenadeAmmoDB,WeaponMainAmmoDB={},{}
 function GetWeaponGrenadeAmmoDB(id) local mdata=alife_storage_manager.get_state()
 	if not(mdata)then return(nil)end if not(mdata.WeaponGrenadeAmmoDB)then mdata.WeaponGrenadeAmmoDB={}end
@@ -115,7 +115,7 @@ function fammo_binder:update(delta)
 end
 -- Well, sometimes...
 function SetWeaponToMag(wpn) local ammo_name,id=ekidona_mags.SelectAmmoTypeName(wpn,wpn:get_ammo_type()),wpn:id()
-	local magsec=ekidona_mags.GetMagName(wpn:section(),1,1,nil,ammo_name) local ammoind=ekidona_mags.GetAmmoIndFromMag(magsec,ammo_name)
+	local magsec=ekidona_mags.GetMagName(wpn:section(),1,2,nil,ammo_name) local ammoind=ekidona_mags.GetAmmoIndFromMag(magsec,ammo_name)
 	ekidona_mags.SetMagazinesDB(id,{ekidona_mags.GetIndFromMag(magsec),{{ammoind,ekidona_mags.GetMagAmmoSize(magsec,ammoind)}}})
 	ekidona_mags.SetWeaponAmmoParams(wpn,wpn:get_ammo_type(),ekidona_mags.GetMagAmmoSize(magsec,ammoind))
 end
