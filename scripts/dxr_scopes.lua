@@ -1,4 +1,4 @@
---[[ Original code by Darryl123 /|\ Reworked by Ekidona Arubino (31.03.23) ||| (24.05.23)--]]
+--[[ Original code by Darryl123 /|\ Reworked by Ekidona Arubino (31.03.23) ||| (03.07.23)--]]
 local addons_table=alun_utils.collect_sections(system_ini(),{"addons_table"})
 function ReturnAddons() return(addons_table)end local precached_weapon_scopes,precached_scopes={},{}
 local function on_game_load() if(is_empty(precached_scopes))then for k,v in pairs(addons_table)do precached_scopes[k]={}end end
@@ -22,7 +22,7 @@ end end
 function on_game_start()
 	if not(system_ini():section_exist("addons_table"))then return end
 	on_game_load() RegisterScriptCallback("on_game_load",on_game_load)
-	RegisterScriptCallback("actor_on_item_use",on_item_use)
+	--RegisterScriptCallback("actor_on_item_use",on_item_use)
 	RegisterScriptCallback("CUIActorMenu_OnItemFocusReceive",on_item_focus)
 	RegisterScriptCallback("CUIActorMenu_OnItemDropped",drag_scope)
 end
