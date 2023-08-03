@@ -1,4 +1,15 @@
---[[ ... ]]--
+--[[...]]--
+function IsKnife(o,c)
+	if not (c) then
+		c = o and o:clsid()
+	end
+	local knife = {
+		[clsid.wpn_knife] = true,
+		[clsid.wpn_knife_s] = true,
+	}
+	return c and knife[c] or false
+end
+--[[...]]--
 -- called in CSE_ALifeDynamicObject::on_unregister()
 -- good place to remove ids from persistent tables
 function CSE_ALifeDynamicObject_on_unregister(id) local m_data=alife_storage_manager.get_state()

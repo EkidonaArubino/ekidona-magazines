@@ -1,4 +1,18 @@
---[[ ... ]]--
+--[[...]]--
+function trade_wnd_opened()
+	SendScriptCallback("TrdWndOpened")
+	xr_meet_dialog_closed = false
+	give_info("trade_wnd_open")
+	--printf("---:>Trade opened")
+end
+function trade_wnd_closed()
+	--printf("---:>Trade closed")
+	SendScriptCallback("TrdWndClosed")
+	disable_info("trade_wnd_open")
+	xr_meet_trade_closed = true
+end
+--[[...]]--
+function inventory_opened() return(ActorMenu.get_actor_menu() and ActorMenu.get_actor_menu():IsShown())end
 -- Special stuff for inventory
 local FocusedItem,TimeFocused=nil,0
 function on_game_start()
@@ -10,20 +24,15 @@ function on_game_start()
 	RegisterScriptCallback("actor_on_net_destroy",actor_on_net_destroy)
 end
 local ItemsText
-function actor_on_first_update()
-	local INV=ActorMenu.get_actor_menu()
-	local xml=CScriptXmlInit()
-	xml:ParseFile("ui_eki_mags.xml")
-	ItemsText=xml:InitTextWnd("menu_extra:form:textcapc",INV)
-	ItemsText:SetWndSize(vector2():set(380,25))
-	ItemsText:SetWndPos(vector2():set(74,732))
-	ItemsText:SetFont(GetFontDI())
-	ItemsText:SetText("")
+function actor_on_first_update() local INV=ActorMenu.get_actor_menu()
+	local xml=CScriptXmlInit() xml:ParseFile("ui_eki_mags.xml")
+	ItemsText=xml:InitTextWnd("actor_menu_extra",INV)
 end
 function on_item_focus(itm) FocusedItem=itm:id() TimeFocused=time_global() end
 function actor_on_update() local function SetMenuText(str) ItemsText:SetText(str)end
+	if not(ItemsText)then return end
 	local fobj=level.object_by_id(FocusedItem)
-	if(actor_menu.inventory_opened() and fobj)then
+	if(inventory_opened() and fobj)then
 		local st,sec=ekidona_mags.GetMagazinesDB(fobj:id()),fobj:section()
 		if(IsWeapon(fobj))and(system_ini():r_string_ex(sec,"class")~="WP_KNIFE" and system_ini():r_string_ex(sec,"class")~="WP_BINOC")then
 			if(ekidona_mags.isMWeapon(sec))then
@@ -51,7 +60,7 @@ function on_key_press(key) local bindkey=dik_to_bind(key)
 	local obj=level.object_by_id(FocusedItem) if not(obj and obj:parent())then return end local osec=obj:section()
 	local indbool=(obj:parent():id()==0 or not(IsStalker(obj:parent()) and obj:parent():alive()))
 	if(bindkey==key_bindings.kWPN_RELOAD)then
-		if(osec:sub(1,5)=="ammo_" and obj:ammo_get_count()>1)then ekidona_mags.ammo_sort_ui(obj):ShowDialog(true)
+		if(axr_main.config:r_value("mm_options","enable_ammo_aggregation",1,true)and osec:sub(1,5)=="ammo_" and obj:ammo_get_count()>1)then ekidona_mags.ammo_sort_ui(obj):ShowDialog(true)
 		elseif(indbool)then
 			if(ekidona_mags.isMWeapon(osec))then ekidona_mags.WeaponEjectMag(obj)
 			elseif(ekidona_mags.isMagazine(osec))then ekidona_mags.ammo_trans_mag_ui(obj):ShowDialog(true)
@@ -59,14 +68,14 @@ function on_key_press(key) local bindkey=dik_to_bind(key)
 		end end
 	elseif(obj:parent():id()==0)and(ekidona_mags.isMagazine(osec))then
 		if(bindkey==key_bindings.kACCEL)then
-			for k,v in pairs({db.actor:item_in_slot(7),db.actor:item_in_slot(15)})do
+			for k,v in pairs({db.actor:item_in_slot(7),db.actor:item_in_slot(13)})do
 				if(v)and(ekidona_mags.GetMagazinesDB(v:id()))then local uvol=ekidona_mags.GetMagazinesOnUnload(v)
 					if(uvol[1]+ekidona_mags.GetMagSize(osec)<=uvol[2])then
 						table.insert(ekidona_mags.GetMagazinesDB(v:id()),{ekidona_mags.GetIndFromMag(osec),ekidona_mags.GetMagazinesDB(FocusedItem)or {}})
-						alife():release(alife_object(FocusedItem)) xr_sound.set_sound_play(0,"inv_stack") return
+						alife():release(alife_object(FocusedItem)) sound_object("interface\\inv_slot"):play(db.actor,0,2) return
 			end end end
 		elseif(bindkey==key_bindings.kCROUCH)then
-			for k,v in pairs({2,3,5})do local wpn=db.actor:item_in_slot(v)
+			for k,v in pairs({2,3})do local wpn=db.actor:item_in_slot(v)
 				if(wpn and ekidona_mags.isMWeapon(wpn:section()))then
 					if(ekidona_mags.WeaponAttemptToLoadMagazine(wpn,obj))then
 						CreateTimeEvent("EkiMagsReload",wpn:id(),0,ekidona_mags.PlayReloadAnimation,wpn) return

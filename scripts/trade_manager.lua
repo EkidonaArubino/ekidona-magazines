@@ -21,33 +21,35 @@ function trade_init(npc, cfg) --[[ Scripted by Ekidona Arubino || 02:12:22 || 21
 	local tempstr=(getFS():update_path('$game_config$','').."ini_temp\\"..cfg)
 	tm[id].cfg_ltx = ("ini_temp\\"..cfg)
 	tm[id].config = ini_file_ex(cfg)
-	local temp=io.open(tempstr)
+	--local temp=io.open(tempstr)
 	if not(tm[id].config.ini)then tm[id] = nil
-	elseif not(temp)then tm[id].config.ini:save_as(tempstr)
+	--elseif not(temp)then
+	else local temp=io.open(tempstr)
+		if not(temp)then tm[id].config.ini:save_as(tempstr)else io.close(temp)end
 		local ini,arts=alun_utils.file_to_table(tempstr),{} tm[id].config=ini_file_ex("ini_temp\\"..cfg,true)
 		for _,ttype in pairs(typetrd)do local typer=tm[id].config:r_string_ex("trader",ttype)
 			for sec,value in pairs(ini[typer])do tm[id].config:w_value(typer,sec,value) local fammo=(sec.."f")
 				if(system_ini():section_exist(fammo) and ekidona_mags.IsFakeAmmo(fammo))then tm[id].config:w_value(typer,fammo,value)end
 			end
 		end tm[id].config:save()
-	else tm[id].config=ini_file_ex("ini_temp\\"..cfg) io.close(temp)end
+	end--else tm[id].config=ini_file_ex("ini_temp\\"..cfg) io.close(temp)end
 end
 function GetTraderIsReal(nid) return(tm[nid] and not(string.find(tm[nid].cfg_ltx,"misc\\trade\\trade_generic.ltx")))end
 function setup_buy_sell_conditions(npc,id)
 	
 	local condlist = xr_logic.parse_condlist(npc, "trader", "buy_condition", tm[id].config:r_string_ex("trader", "buy_condition") or "")
 	local str = condlist and xr_logic.pick_section_from_condlist(db.actor, npc, condlist)
-	if (str == nil or str == "") then
+	if (str == nil or str == "" or str == "nil") then
 		printf("Wrong section in buy_condition condlist for npc [%s]!", npc:name())
 		return
 	end
 	
-	npc:buy_condition(tm[id].config.ini, str) -- !!! See? ".ini"
+	npc:buy_condition(tm[id].config.ini, str)
 	tm[id].current_buy_condition = str
 
 	condlist = xr_logic.parse_condlist(npc, "trader", "sell_condition", tm[id].config:r_string_ex("trader", "sell_condition") or "")
 	str = condlist and xr_logic.pick_section_from_condlist(db.actor, npc, condlist)
-	if(str == nil or str == "") then
+	if(str == nil or str == "" or str == "nil") then
 		printf("Wrong section in sell_condition condlist for npc [%s]!", npc:name())
 		return
 	end
@@ -65,31 +67,6 @@ function setup_buy_sell_conditions(npc,id)
 	str = tonumber(str) or 0.7
 	npc:buy_item_condition_factor(str)
 	tm[id].current_buy_item_condition_factor = str
-	
-	str = tm[id].config:r_string_ex("trader", "buy_supplies")
-	if not (str) then return end
-	condlist = xr_logic.parse_condlist(npc, "trader", "buy_supplies", str)
-	str = condlist and xr_logic.pick_section_from_condlist(db.actor, npc, condlist)
-	if(str=="" or str==nil) then return	end
-	
-	--printf("-TRADE INIT for "..npc:name())
-	
-	local trade_update = utils.load_ctime(db.actor,id.."_resupply_time")
-	if (trade_update) then
-		--printf("LOADED: "..game.get_game_time():diffSec(trade_update))	
-	end
-	--patch by Ekidona Arubino
-	local resupply_timeout = tm[id].config:r_float_ex("trader", "resupply_timeout") or 86400
-	if not(trade_update)or(game.get_game_time():diffSec(trade_update) >= resupply_timeout) then
-		if not(trade_update)then trade_update=game.get_game_time()
-		else local time_delta=math.floor(game.get_game_time():diffSec(trade_update)/resupply_timeout)
-			local needsec=(resupply_timeout*time_delta) local Y,M,D,h,m,s,ms=0,0,0,0,0,0,0
-			Y,M,D,h,m,s,ms=trade_update:get(Y,M,D,h,m,s,ms) trade_update:set(Y,M,D,h,m,s+needsec,ms)
-		end
-		npc:buy_supplies(tm[id].config.ini, str)
-		utils.save_ctime(db.actor,id.."_resupply_time",trade_update)
-		--printf("CTime update: "..npc:name().." TIME: "..utils.CTimeToSec(trade_update))
-	end
 end 
 
 function update(npc)
@@ -109,11 +86,7 @@ function update(npc)
 	if (tm[id].resupply_time and game.get_game_time():diffSec(tm[id].resupply_time) < 86400)  then
 		return
 	end
-	if not(tm[id].resupply_time)then tm[id].resupply_time=game.get_game_time()
-	else local time_delta=math.floor(game.get_game_time():diffSec(tm[id].resupply_time)/86400)
-		local needsec=(86400*time_delta) local Y,M,D,h,m,s,ms=0,0,0,0,0,0,0
-		Y,M,D,h,m,s,ms=tm[id].resupply_time:get(Y,M,D,h,m,s,ms) tm[id].resupply_time:set(Y,M,D,h,m,s+needsec,ms)
-	end
+	tm[id].resupply_time = game.get_game_time()
 	
 	local str = tm[id].config:r_string_ex("trader", "buy_supplies")
 	if not (str) then 
@@ -127,7 +100,7 @@ function update(npc)
 		return
 	end
 	if (tm[id].current_buy_supplies == nil or tm[id].current_buy_supplies ~= str) then
-		--npc:buy_supplies(tm[id].config.ini, str)
+		npc:buy_supplies(tm[id].config.ini, str)
 		tm[id].current_buy_supplies = str
 	end	
 end
@@ -146,7 +119,6 @@ function save_state(id,m_data)
 		printf("ERROR: trade_manager: Invalid pathname %s.",tm[id].cfg_ltx)
 		return
 	end
-	
 	m_data.trade_manager = empty_table(m_data.trade_manager)
 	m_data.trade_manager.cfg_ltx = tm[id].cfg_ltx
 	m_data.trade_manager.current_buy_condition = tm[id].current_buy_condition
@@ -156,7 +128,7 @@ function save_state(id,m_data)
 end 
 
 function load_state(id,m_data)
-	if not (id and m_data.trade_manager and m_data.trade_manager and m_data.trade_manager.cfg_ltx) then
+	if not (id and m_data.trade_manager and m_data.trade_manager.cfg_ltx) then
 		m_data.trade_manager = nil
 		return
 	end
@@ -165,10 +137,10 @@ function load_state(id,m_data)
 		return 
 	end
 	
-	if (npc:character_community() == "zombied") then
+	if (npc:character_community() == "zombied") then 
 		return 
-	end 	
-	
+	end 
+
 	tm[id] = tm[id] or {}
 	tm[id].cfg_ltx = m_data.trade_manager.cfg_ltx
 	tm[id].config = ini_file_ex(tm[id].cfg_ltx,true)
@@ -180,7 +152,7 @@ function load_state(id,m_data)
 	tm[id].current_sell_condition = m_data.trade_manager.current_sell_condition
 	tm[id].current_buy_supplies = m_data.trade_manager.current_buy_supplies
 	tm[id].resupply_time = m_data.trade_manager.resupply_time or game.get_game_time()
-	
+
 	m_data.trade_manager = nil
 end 
 

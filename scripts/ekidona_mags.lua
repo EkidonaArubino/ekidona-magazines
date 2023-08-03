@@ -1,4 +1,4 @@
---[[--All by エキドナ　アルビノ (Ekidona Arubino)--]]--
+--[[--All by エキドナアルビノ (Ekidona Arubino)--]]--
 --25.06.23 : 20:20 (JST)
 --WaMArray,flag_weapon_jammed={},{} [meh]
 local UIMenuActive,precahced_wmdata,precahced_magstowpn,precached_nonmagst=false,{},{},{}
@@ -89,7 +89,7 @@ function GetSuitUnloadCond(item,cond) local smax,addslots=GetSuitItemMaxMags(ite
 		if(db.actor:is_on_belt(itm))then addslots=(addslots+utils.round((system_ini():r_float_ex(itm:section(),"add_slots_for_magazines")or 0)*utils.clamp((itm:condition()-0.35)/0.25,0,1)))end
 	end)end return(math.min(utils.round(smax*((cond or item:condition())/0.9)),smax)+addslots)
 end
-function GetMagazinesOnUnload(itm) if not(itm and isMSuit(itm:section()))then return end local magcnt=0 -- local outfit=(itm or db.actor:item_in_slot(7) or db.actor:item_in_slot(15))
+function GetMagazinesOnUnload(itm) if not(itm and isMSuit(itm:section()))then return end local magcnt=0 -- local outfit=(itm or db.actor:item_in_slot(7) or db.actor:item_in_slot(13))
 	for k,v in pairs(GetMagazinesDB(itm:id()) or {})do magcnt=(magcnt+precahced_wmdata[precahced_wmdata[v[1]]][4])end
 	return({magcnt,GetSuitUnloadCond(itm)})
 end
@@ -162,24 +162,24 @@ function MagEjectAmmo(mag,cnt) local st=GetMagazinesDB(mag:id()) local msize=Get
 	for i=#st,1,-1 do local useammo=math.min(cnt,st[i][2]) cnt=(cnt-useammo)
 		ammodict[GetAmmoSecFromMag(msec,st[i][1])]=((ammodict[GetAmmoSecFromMag(msec,st[i][1])] or 0)+useammo)
 		if(useammo==st[i][2])then table.insert(remover,i)end if(cnt<=0)then break end
-	end if(#remover>0)then for i=#remover,1,-1 do table.remove(st,remover[i]-(#remover-i))end end xr_sound.set_sound_play(0,"inv_stack")
+	end if(#remover>0)then for i=#remover,1,-1 do table.remove(st,remover[i]-(#remover-i))end end sound_object("interface\\inv_slot"):play(db.actor,0,2)
 	for k,v in pairs(ammodict)do create_ammo(k,mag:position(),mag:level_vertex_id(),mag:game_vertex_id(),mag:parent():id(),v)end
 end
 -- Reload and other stuff
 local reloadtb={0,0,0}-- I think it might save the mag before saving/loading the game and other annoying things.
 function SetReloadArray(ary) reloadtb=(ary or {0,0,0})end
-function on_key_release(key) if(UIMenuActive)then return end local weapon=db.actor:active_item()
+function on_key_release(key) if(UIMenuActive or actor_menu.inventory_opened())then return end local weapon=db.actor:active_item()
 	if(dik_to_bind(key)~=key_bindings.kWPN_RELOAD)or not(weapon)or(get_console():get_bool("g_unlimitedammo"))then return end
 	if not(weapon and IsWeapon(weapon) and isMWeapon(weapon:section()) and not(GetWeaponGrenadeLauncher(weapon)))or(GetJammedDB(weapon:id()))or(weapon:get_state()==7)then return end
-	local unloads={db.actor:item_in_slot(7),db.actor:item_in_slot(15)}
+	local unloads={db.actor:item_in_slot(7),db.actor:item_in_slot(13)}
 	for k,v in pairs(unloads)do if(v and isMSuit(v:section()) and #GetMagazinesDB(v:id())>0)then local switcher=unloads[math.abs(k-3)]
 		mag_trans_wpn_ui(v,weapon,nil,(switcher and isMSuit(switcher:section()))and switcher):ShowDialog(true) return
 	end end
 end
 function PlayReloadAnimation(weapon) local bool=false
-	for k,v in pairs({2,3,5})do local itm=db.actor:item_in_slot(v)
+	for k,v in pairs({2,3})do local itm=db.actor:item_in_slot(v)
 		if(itm and itm:id()==weapon:id())then db.actor:activate_slot(v) bool=true break end
-	end if not(bool)then local aslots,sslot=((system_ini():r_float_ex(weapon:section(),"slot")<4 and {2,3})or {5})
+	end if not(bool)then local aslots,sslot={2,3}--((system_ini():r_float_ex(weapon:section(),"slot")<4 and {2,3})or {5})
 		for k,v in pairs(aslots)do if not(db.actor:item_in_slot(v))then sslot=v break end end
 		ActorMenu.get_actor_menu():ToSlot(weapon,true,(sslot or aslots[math.random(1,#aslots)])) get_hud():HideActorMenu() return(false)
 	end if(ActorMenu.get_actor_menu():IsShown())then get_hud():HideActorMenu() return(false)end weapon:switch_state(7) return(true)
@@ -251,7 +251,7 @@ function drag_item(item,item2,from_slot,to_slot)
 		if(loading_state)then CreateTimeEvent("EkiMagsReload",item2:id(),0,PlayReloadAnimation,item2)end
 	elseif(isMagazine(item:section()))and(isMSuit(item2:section()))then local st,pdata=GetMagazinesDB(item:id()),GetMagazinesOnUnload(item2)
 		if(pdata[1]+GetMagSize(item:section())>pdata[2])then return end table.insert(GetMagazinesDB(item2:id()),{precahced_wmdata[item:section()][0],st})
-		alife():release(alife_object(item:id()),true) xr_sound.set_sound_play(0,"inv_stack")
+		alife():release(alife_object(item:id()),true) sound_object("interface\\inv_slot"):play(db.actor,0,2)
 	end
 end
 -- Trading/Barter
@@ -265,7 +265,7 @@ function actor_on_trade(obj,sell_bye,money)
 	end
 end
 -- Ammo sort
-function ammo_sorter_menu(obj) return(obj:ammo_get_count()>1 and game.translate_string("st_sort_ammo"))end
+function ammo_sorter_menu(obj) return(axr_main.config:r_value("mm_options","enable_ammo_aggregation",1,false)and obj:ammo_get_count()>1 and game.translate_string("st_sort_ammo"))end
 function ammo_sorter(obj) ammo_sort_ui(obj):ShowDialog(true)end
 --UI menus
 function GetTFrectFromSec(sec)
@@ -299,7 +299,7 @@ function ammo_sort_ui:OnButton_plus() self.ammo_use=math.min(self.ammo_use+1,sel
 function ammo_sort_ui:OnButton_minus() self.ammo_use=math.max(self.ammo_use-1,1) self.ammouse:SetText(self.ammo_use)end
 function ammo_sort_ui:OnButton_sort() self.obj:ammo_set_count(self.obj:ammo_get_count()-self.ammo_use) local parent=self.obj:parent()
 	create_ammo(self.section,parent:position(),parent:level_vertex_id(),parent:game_vertex_id(),parent:id(),self.ammo_use)
-	xr_sound.set_sound_play(0,"inv_stack") self:ExitMenu()
+	sound_object("interface\\inv_slot"):play(db.actor,0,2) self:ExitMenu()
 end function ammo_sort_ui:OnKeyboard(dik,keyboard_action) CUIScriptWnd.OnKeyboard(self,dik,keyboard_action)
 	if(keyboard_action==ui_events.WINDOW_KEY_PRESSED)then local bind=dik_to_bind(dik)
 		if(dik==DIK_keys.DIK_RETURN or bind==key_bindings.kUSE)then self:OnButton_sort()
@@ -411,13 +411,13 @@ function set_mag_list_item:__init(msec,mdb,sort) super() local xml=CScriptXmlIni
 	self.button=xml:Init3tButton("menu_extra:form:icon",self) self:Rename(msec,mdb,sort)
 end function set_mag_list_item:Rename(msec,mdb,sort) local _frect=GetTFrectFromSec(msec)
 	local _size={_frect[3]-_frect[1],_frect[4]-_frect[2]} self.icon:SetTextureRect(Frect():set(unpack(_frect))) local text=(alun_utils.get_inv_name(msec)..": ")
-	self.icon:SetWndSize(vector2():set(_size[1],_size[2])) self.text:SetWndSize(vector2():set(((sort and sort>0 and 210)or 244)-_size[1],_size[2])) self.text:SetWndPos(vector2():set(_size[1],0))
+	self.icon:SetWndSize(vector2():set(_size[1],_size[2])) self.text:SetWndSize(vector2():set(((sort and sort>0 and 250)or 284)-_size[1],_size[2])) self.text:SetWndPos(vector2():set(_size[1],0))
 	if(mdb and mdb[1])then text=(text..string.format(game.translate_string("st_magazine_contain"),GetMagazineAmmoCount(mdb)))
 		text=(text.." "..game.translate_string(system_ini():r_string_ex(GetAmmoSecFromMag(msec,mdb[#mdb][1]),"inv_name_short")))
 	else text=(text..game.translate_string("st_magazine_is_empty"))end self.text:SetText(text)
 	for k,v in pairs(self.sortcaps)do
-		if(sort and bit_and(k,sort)>0)then v:Show(true) v:SetWndPos(vector2():set(220,(_size[2]/2)+uisseter[k][1]))else v:Show(false)end
-	end self.button:SetWndSize(vector2():set(242,_size[2])) self:SetWndSize(vector2():set(244,_size[2]))
+		if(sort and bit_and(k,sort)>0)then v:Show(true) v:SetWndPos(vector2():set(260,(_size[2]/2)+uisseter[k][1]))else v:Show(false)end
+	end self.button:SetWndSize(vector2():set(282,_size[2])) self:SetWndSize(vector2():set(284,_size[2]))
 end
 class "mag_trans_wpn_ui" (CUIScriptWnd)
 function mag_trans_wpn_ui:__init(outfit,weapon,onlyunload,switchobj) super() UIMenuActive=true
@@ -435,19 +435,19 @@ end
 function mag_trans_wpn_ui:InitControls()
 	self:SetWndRect(Frect():set(0,0,1024,768)) self:SetWndPos(vector2():set(0,0))
 	self:SetAutoDelete(true) self.xml=CScriptXmlInit() self.xml:ParseFile("ui_eki_mags.xml")
-	self.form=self.xml:InitStatic("menu_extra:form",self) self.form:SetWndSize(vector2():set(266,384))
+	self.form=self.xml:InitStatic("menu_extra:form",self) self.form:SetWndSize(vector2():set(306,384))
 	self.form:InitTexture("ui_ekidona_magazines_back_2") local vecpos=vector2()
 	if(self.onlyunload)then vecpos:set(379,192)else vecpos:set(2,368)end self.form:SetWndPos(vecpos) self.mforms={} local lx,ly=0,0
 	self.list=self.xml:InitListBox("menu_extra:form:magazines_list"..((self.switchobj and "_2")or ""),self.form) self:GenerateMagsUI()
 	if(self.switchobj)then local form=self.xml:InitTextWnd("menu_extra:form:textcapc",self.form) form:SetWndPos(vector2():set(8,8))
-		form:SetWndSize(vector2():set(254,24)) form:SetText(alun_utils.get_inv_name(self.switchobj:section())) form=self.xml:Init3tButton("menu_extra:form:icon",self.form)
-		form:SetWndPos(vector2():set(8,8)) form:SetWndSize(vector2():set(254,24)) self:Register(form,"switch") self:AddCallback("switch",ui_events.BUTTON_CLICKED,self.OnButton_switch,self)
+		form:SetWndSize(vector2():set(294,24)) form:SetText(alun_utils.get_inv_name(self.switchobj:section())) form=self.xml:Init3tButton("menu_extra:form:icon",self.form)
+		form:SetWndPos(vector2():set(8,8)) self:Register(form,"switch") self:AddCallback("switch",ui_events.BUTTON_CLICKED,self.OnButton_switch,self)
 	end
 end
 function mag_trans_wpn_ui:SortThatMag(ind,sort) local st=GetMagazinesDB(self.outfit:id()) local nst={} if not(st[ind])then return end
 	if(sort==1)then for i=1,(ind-2)do nst[i]=st[i]end nst[ind-1],nst[ind]=st[ind],st[ind-1] for i=1,(#st-ind)do nst[ind+i]=st[ind+i]end
 	else for i=1,(ind-1)do nst[i]=st[i]end nst[ind],nst[ind+1]=st[ind+1],st[ind] for i=1,(#st-(ind+1))do nst[ind+i+1]=st[ind+i+1]end end
-	SetMagazinesDB(self.outfit:id(),nst) self:GenerateMagsUI() xr_sound.set_sound_play(0,"inv_stack")
+	SetMagazinesDB(self.outfit:id(),nst) self:GenerateMagsUI() sound_object("interface\\inv_slot"):play(db.actor,0,2)
 end
 function mag_trans_wpn_ui:AttachThatMag(ind) local st=(GetMagazinesDB(self.outfit:id())and GetMagazinesDB(self.outfit:id())[ind])
 	if not(self.onlyunload)and(st and st[1])then local ammocnt=GetMagazineAmmoCount(st[2])
@@ -461,9 +461,9 @@ function mag_trans_wpn_ui:AttachThatMag(ind) local st=(GetMagazinesDB(self.outfi
 					self.weapon:set_ammo_elapsed(0) uused=true break
 				end
 			end end if not(uused)then WeaponEjectMag(self.weapon)end
-		end xr_sound.set_sound_play(0,"inv_stack") -- get_hud():HideActorMenu() 
+		end sound_object("interface\\inv_slot"):play(db.actor,0,2) -- get_hud():HideActorMenu() 
 		CreateTimeEvent("EkiMagsReload",self.weapon:id(),0,PlayReloadAnimation,self.weapon) self:ExitMenu() -- 0.1
-	elseif(st)then local msec=precahced_wmdata[st[1]] xr_sound.set_sound_play(0,"inv_stack")
+	elseif(st)then local msec=precahced_wmdata[st[1]] sound_object("interface\\inv_slot"):play(db.actor,0,2)
 		CreateMagazine(msec,db.actor:position(),db.actor:level_vertex_id(),db.actor:game_vertex_id(),0,GetAmmoArrayFromMag(msec,st[2]))
 		table.remove(GetMagazinesDB(self.outfit:id()),ind) self.list:RemoveWindow(self.mforms[ind]) table.remove(self.mforms,ind) self:GenerateMagsUI()
 	end
