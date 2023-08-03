@@ -1,5 +1,5 @@
 # Ekidona magazines for Call of Chernobyl 1.5 R6 (scripts only)
-The complete version of the addon (with configurations and other content) can be found on the original ModDB page: ...
+The complete version of the addon (with configurations and other content) can be found on the original ModDB page: https://www.moddb.com/mods/call-of-chernobyl/addons/ekidona-magazines-coc-15-r6
 
 If you find errors/bugs in the modification functionality, you can use the "issues" tab, but with a number of conditions:
 
