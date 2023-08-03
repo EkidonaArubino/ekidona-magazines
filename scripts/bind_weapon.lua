@@ -28,7 +28,20 @@ function weapon_binder:update(delta)
 	if(IsWeapon(obj))and not(IsKnife(obj) or IsGrenade(obj))then
 		if(ekidona_mags.GetWeaponGrenadeLauncher(obj))then SetWeaponGrenadeAmmoDB(obj:id(),(obj:get_ammo_in_magazine()>0))end
 	end
-	if(self.first_call)then
+	if(self.first_call)then -- Original, "bind_item.script"
+		local se_obj = alife_object(self.object:id())
+		if (se_obj) then
+			local m_data = alife_storage_manager.get_se_obj_state(se_obj)
+			if (m_data) then 
+				if (m_data.offline_scope_type) then
+					self.object:weapon_set_scope(tonumber(m_data.offline_scope_type) or 0)
+					m_data.offline_scope_type = nil
+				end 
+				if (m_data.offline_ammo_type) then 
+					self.object:set_ammo_type(tonumber(m_data.offline_ammo_type) or 0)
+				end
+			end
+		end
 		if(ekidona_mags.isMagazine(sec)or ekidona_mags.isMSuit(sec))and(obj:parent())and(IsTrader(obj:parent()))then--IsTrader is not prepared for working
 			ekidona_mags.SetMagazinesDB(obj:id(),{})
 		end self.first_call=nil return
@@ -99,6 +112,26 @@ function weapon_binder:net_spawn(se_abstract)
 	end self.first_call=true return(true)
 end
 function weapon_binder:net_destroy() object_binder.net_destroy(self)end
+function weapon_binder:save(stpk)
+	object_binder.save(self, stpk)
+	--printf("weapon_binder save %s  [scope=%s]",self.object:name(),self.object:weapon_get_scope())
+	local se_obj = alife_object(self.object:id())
+	if (se_obj) then
+		local m_data = alife_storage_manager.get_se_obj_state(se_obj)
+		if (m_data) then 
+			local typ = self.object:weapon_get_scope()
+			--printf("weapon_binder %s  typ=%s",self.object:name(),typ)
+			if (typ ~= 255) then
+				m_data.offline_scope_type = typ
+			end
+			typ = self.object:get_ammo_type()
+			if (typ ~= 0) then 
+				m_data.offline_ammo_type = typ
+			end
+		end
+	end
+end
+function weapon_binder:load(stpk) object_binder.load(self, stpk)end
 -- Fake ammo
 function fammo_bind(obj) obj:bind_object(fammo_binder(obj))end
 class "fammo_binder" (object_binder)
@@ -115,7 +148,7 @@ function fammo_binder:update(delta)
 end
 -- Well, sometimes...
 function SetWeaponToMag(wpn) local ammo_name,id=ekidona_mags.SelectAmmoTypeName(wpn,wpn:get_ammo_type()),wpn:id()
-	local magsec=ekidona_mags.GetMagName(wpn:section(),1,2,nil,ammo_name) local ammoind=ekidona_mags.GetAmmoIndFromMag(magsec,ammo_name)
-	ekidona_mags.SetMagazinesDB(id,{ekidona_mags.GetIndFromMag(magsec),{{ammoind,ekidona_mags.GetMagAmmoSize(magsec,ammoind)}}})
+	local magsec=ekidona_mags.GetMagName(wpn:section(),1,2,nil,ammo_name) --printf("LMAO (%s): %s : %s",wpn:section(),ammo_name,magsec)
+	local ammoind=ekidona_mags.GetAmmoIndFromMag(magsec,ammo_name) ekidona_mags.SetMagazinesDB(id,{ekidona_mags.GetIndFromMag(magsec),{{ammoind,ekidona_mags.GetMagAmmoSize(magsec,ammoind)}}})
 	ekidona_mags.SetWeaponAmmoParams(wpn,wpn:get_ammo_type(),ekidona_mags.GetMagAmmoSize(magsec,ammoind))
 end
