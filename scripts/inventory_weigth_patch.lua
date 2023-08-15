@@ -1,4 +1,4 @@
---[[ This algorithm was written by エキドナアルビノ | Ekidona Arubino | 31.03.23 | 16:27 (JST)]]
+--[[ This algorithm was written by エキドナアルビノ | Ekidona Arubino | 15.08.23 | 11:36 (UTC+3)]]
 function on_game_start()
 	RegisterScriptCallback("actor_on_first_update",actor_on_first_update)
 	RegisterScriptCallback("actor_on_update",actor_on_update)
@@ -34,8 +34,10 @@ function actor_on_update(bind,delta)
 	end local mweight,cweight,wdiff=system_ini():r_float_ex(system_ini():r_string_ex("actor","condition_sect"),"max_walk_weight"),0,1
 	local function GetRealActorWeight(temp,item) weight=(weight+(item:weight()/(ialready[item:id()] or 1)))end
 	local function GetRealMaxWeight(temp,item) if(ialready[item:id()])or(IsArtefact(item) and db.actor:is_on_belt(item))then
-		local addweight=(((IsArtefact(item) and item:get_artefact_additional_weight())or item:get_additional_max_walk_weight())*item:condition())
-		mweight=(mweight+addweight) cweight=(cweight+((addweight/wdiff)-addweight))
+		local addweight=(((IsArtefact(item) and item:get_artefact_additional_weight())or system_ini():r_float_ex(item:section(),"additional_inventory_weight")or 0)*item:condition())
+		item:iterate_installed_upgrades(function(usec) local upset=system_ini():r_string_ex(usec,"section")
+			addweight=(addweight+(system_ini():r_float_ex(upset,"additional_inventory_weight")or 0))
+		end) mweight=(mweight+addweight) cweight=(cweight+((addweight/wdiff)-addweight))
 	end end db.actor:iterate_inventory(GetRealActorWeight) wdiff=(weight/db.actor:get_total_weight()) db.actor:iterate_inventory(GetRealMaxWeight)
 	local WeightBoost,rtbl=0,{} for k,v in pairs(ReturnWeightBoostArray())do
 		if(v[3]>=1)then SetWeightBoostArray(k,nil) else WeightBoost=(WeightBoost+v[1]) GetWeightBoostArray(k)[3]=(v[3]+(delta/(1000*v[2])))end
