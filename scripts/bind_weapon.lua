@@ -1,5 +1,5 @@
 --[[--All by エキドナアルビノ (Ekidona Arubino)--]]--
---03.07.23 : 13:26(JST)
+--03.11.23 : 20:34(JST)
 --WeaponGrenadeAmmoDB,WeaponMainAmmoDB={},{}
 function GetWeaponGrenadeAmmoDB(id) local mdata=alife_storage_manager.get_state()
 	if not(mdata)then return(nil)end if not(mdata.WeaponGrenadeAmmoDB)then mdata.WeaponGrenadeAmmoDB={}end
@@ -45,8 +45,9 @@ function weapon_binder:update(delta)
 		end st=ekidona_mags.GetMagazinesDB(obj:id()) local amass,parent=(system_ini():r_float_ex(sec,"inv_weight")*utils.clamp(obj:condition()/0.9,0.25,1)),obj:parent()
 		local function GetActiveWeapon() return(parent and IsStalker(parent)and parent:alive() and parent:active_item() and parent:active_item():id()==obj:id())end
 		if(st)then local magsec,ammomass,lastammo=ekidona_mags.GetMagFromInd(st[1]),0 amass=(amass+system_ini():r_float_ex(magsec,"inv_weight"))
-			for k,v in pairs(st[2] or {})do lastammo=ekidona_mags.GetAmmoSecFromMag(magsec,v[1])
-				ammomass=(ammomass+((system_ini():r_float_ex(lastammo,"inv_weight")/system_ini():r_float_ex(lastammo,"box_size"))*v[2]))
+			for k,v in pairs(st[2] or {})do lastammo=(v[1] and ekidona_mags.GetAmmoSecFromMag(magsec,v[1]))
+				if not(lastammo)then SetWeaponToMag(obj)
+				else ammomass=(ammomass+((system_ini():r_float_ex(lastammo,"inv_weight")/system_ini():r_float_ex(lastammo,"box_size"))*v[2]))end
 			end local needtype=(ekidona_mags.SelectAmmoType(obj,lastammo)or obj:get_ammo_type())
 			--local partner=(actor_menu.inventory_opened() and ActorMenu.get_actor_menu():GetPartner()) -- meh
 			if(ekidona_mags.GetWeaponGrenadeLauncher(obj))then amass=(amass+ammomass) --yeap
@@ -76,7 +77,7 @@ function weapon_binder:update(delta)
 				if(parent)then ekidona_mags.CreateMagazine(magsec,obj:position(),obj:level_vertex_id(),obj:game_vertex_id(),parent:id(),v[2])
 				else ekidona_mags.CreateMagazine(magsec,obj:position(),obj:level_vertex_id(),obj:game_vertex_id(),nil,v[2])end--meh
 			else amass=(amass+system_ini():r_float_ex(magsec,"inv_weight"))
-				for k2,v2 in pairs(v[2])do local ammosec=ekidona_mags.GetAmmoSecFromMag(magsec,v2[1])
+				for k2,v2 in pairs(v[2])do local ammosec=(v2[1] and ekidona_mags.GetAmmoSecFromMag(magsec,v2[1]))
 					amass=(amass+((system_ini():r_float_ex(ammosec,"inv_weight")/system_ini():r_float_ex(ammosec,"box_size"))*v2[2]))
 		end end end for i=1,#tremove do table.remove(ekidona_mags.GetMagazinesDB(obj:id()),tremove[i]-(i-1))end obj:set_weight(amass)
 	end
