@@ -1,5 +1,5 @@
 --[[--All by エキドナ　アルビノ (Ekidona Arubino)--]]--
---25.06.23 : 20:20 (JST)
+--03.11.23 : 15:15 (JST)
 --WaMArray,flag_weapon_jammed={},{} [meh]
 local UIMenuActive,precahced_wmdata,precahced_magstowpn,precached_nonmagst=false,{},{},{}
 function ReturnBoolUIMenuActive() return(UIMenuActive)end
@@ -411,13 +411,13 @@ function set_mag_list_item:__init(msec,mdb,sort) super() local xml=CScriptXmlIni
 	self.button=xml:Init3tButton("menu_extra:form:icon",self) self:Rename(msec,mdb,sort)
 end function set_mag_list_item:Rename(msec,mdb,sort) local _frect=GetTFrectFromSec(msec)
 	local _size={_frect[3]-_frect[1],_frect[4]-_frect[2]} self.icon:SetTextureRect(Frect():set(unpack(_frect))) local text=(alun_utils.get_inv_name(msec)..": ")
-	self.icon:SetWndSize(vector2():set(_size[1],_size[2])) self.text:SetWndSize(vector2():set(((sort and sort>0 and 210)or 244)-_size[1],_size[2])) self.text:SetWndPos(vector2():set(_size[1],0))
+	self.icon:SetWndSize(vector2():set(_size[1],_size[2])) self.text:SetWndSize(vector2():set(((sort and sort>0 and 250)or 284)-_size[1],_size[2])) self.text:SetWndPos(vector2():set(_size[1],0))
 	if(mdb and mdb[1])then text=(text..string.format(game.translate_string("st_magazine_contain"),GetMagazineAmmoCount(mdb)))
 		text=(text.." "..game.translate_string(system_ini():r_string_ex(GetAmmoSecFromMag(msec,mdb[#mdb][1]),"inv_name_short")))
 	else text=(text..game.translate_string("st_magazine_is_empty"))end self.text:SetText(text)
 	for k,v in pairs(self.sortcaps)do
-		if(sort and bit_and(k,sort)>0)then v:Show(true) v:SetWndPos(vector2():set(220,(_size[2]/2)+uisseter[k][1]))else v:Show(false)end
-	end self.button:SetWndSize(vector2():set(242,_size[2])) self:SetWndSize(vector2():set(244,_size[2]))
+		if(sort and bit_and(k,sort)>0)then v:Show(true) v:SetWndPos(vector2():set(260,(_size[2]/2)+uisseter[k][1]))else v:Show(false)end
+	end self.button:SetWndSize(vector2():set(282,_size[2])) self:SetWndSize(vector2():set(284,_size[2]))
 end
 class "mag_trans_wpn_ui" (CUIScriptWnd)
 function mag_trans_wpn_ui:__init(outfit,weapon,onlyunload,switchobj) super() UIMenuActive=true
@@ -435,13 +435,13 @@ end
 function mag_trans_wpn_ui:InitControls()
 	self:SetWndRect(Frect():set(0,0,1024,768)) self:SetWndPos(vector2():set(0,0))
 	self:SetAutoDelete(true) self.xml=CScriptXmlInit() self.xml:ParseFile("ui_eki_mags.xml")
-	self.form=self.xml:InitStatic("menu_extra:form",self) self.form:SetWndSize(vector2():set(266,384))
+	self.form=self.xml:InitStatic("menu_extra:form",self) self.form:SetWndSize(vector2():set(306,384))
 	self.form:InitTexture("ui_ekidona_magazines_back_2") local vecpos=vector2()
 	if(self.onlyunload)then vecpos:set(379,192)else vecpos:set(2,368)end self.form:SetWndPos(vecpos) self.mforms={} local lx,ly=0,0
 	self.list=self.xml:InitListBox("menu_extra:form:magazines_list"..((self.switchobj and "_2")or ""),self.form) self:GenerateMagsUI()
 	if(self.switchobj)then local form=self.xml:InitTextWnd("menu_extra:form:textcapc",self.form) form:SetWndPos(vector2():set(8,8))
-		form:SetWndSize(vector2():set(254,24)) form:SetText(alun_utils.get_inv_name(self.switchobj:section())) form=self.xml:Init3tButton("menu_extra:form:icon",self.form)
-		form:SetWndPos(vector2():set(8,8)) form:SetWndSize(vector2():set(254,24)) self:Register(form,"switch") self:AddCallback("switch",ui_events.BUTTON_CLICKED,self.OnButton_switch,self)
+		form:SetWndSize(vector2():set(294,24)) form:SetText(alun_utils.get_inv_name(self.switchobj:section())) form=self.xml:Init3tButton("menu_extra:form:icon",self.form)
+		form:SetWndPos(vector2():set(8,8)) self:Register(form,"switch") self:AddCallback("switch",ui_events.BUTTON_CLICKED,self.OnButton_switch,self)
 	end
 end
 function mag_trans_wpn_ui:SortThatMag(ind,sort) local st=GetMagazinesDB(self.outfit:id()) local nst={} if not(st[ind])then return end
