@@ -1,4 +1,4 @@
---[[ This algorithm was written by エキドナアルビノ | Ekidona Arubino | 15.08.23 | 11:36 (UTC+3)]]
+--[[ This algorithm was written by エキドナアルビノ | Ekidona Arubino | 01.01.24 | 19:36 (UTC+3)]]
 function on_game_start()
 	RegisterScriptCallback("actor_on_first_update",actor_on_first_update)
 	RegisterScriptCallback("actor_on_update",actor_on_update)
@@ -34,7 +34,8 @@ function actor_on_update(bind,delta)
 	end local mweight,cweight,wdiff=system_ini():r_float_ex(system_ini():r_string_ex("actor","condition_sect"),"max_walk_weight"),0,1
 	local function GetRealActorWeight(temp,item) weight=(weight+(item:weight()/(ialready[item:id()] or 1)))end
 	local function GetRealMaxWeight(temp,item) if(ialready[item:id()])or(IsArtefact(item) and db.actor:is_on_belt(item))then
-		local addweight=(((IsArtefact(item) and item:get_artefact_additional_weight())or system_ini():r_float_ex(item:section(),"additional_inventory_weight")or 0)*item:condition())
+		--(IsArtefact(item) and item:get_artefact_additional_weight())or 
+		local addweight=((system_ini():r_float_ex(item:section(),"additional_inventory_weight")or 0)*item:condition())
 		item:iterate_installed_upgrades(function(usec) local upset=system_ini():r_string_ex(usec,"section")
 			addweight=(addweight+(system_ini():r_float_ex(upset,"additional_inventory_weight")or 0))
 		end) mweight=(mweight+addweight) cweight=(cweight+((addweight/wdiff)-addweight))
